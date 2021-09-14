@@ -1,21 +1,21 @@
 // main logic block containing clock muxes and dividers
 
 module clocking_network #( 
-  parameter COUNTER_MAX = 50000000
+  parameter COUNTER_MAX = 50000
 ) 
 (
   input logic clk,    
   input logic rst_n,
   input logic [1:0] sw_in,
 
-  output logic [2:0] led_out  
+  output logic [3:0] led_out  
 );
 
   logic clk_div_2_r;
   logic clk_mux_0_s, clk_mux_1_s;
-  logic count_clk_0_s, count_clk_1_s, count_clk_2_s;
+  logic count_clk_0_s, count_clk_1_s, count_clk_2_s, led_out_3_r;
 
-  assign led_out = { count_clk_2_s, count_clk_1_s, count_clk_0_s };
+  assign led_out = { led_out_3_r, count_clk_2_s, count_clk_1_s, count_clk_0_s };
 
   clock_wiz i_clock_wiz (
     .clk(clk),
@@ -30,14 +30,14 @@ module clocking_network #(
     .O(clk_mux_0_s),  // 1-bit output: Clock output
     .I0(clk_div_2_r), // 1-bit input: Clock input (S=0)
     .I1(clk0),         // 1-bit input: Clock input (S=1)
-    .S(sw_in(0))      // 1-bit input: Clock select
+    .S(sw_in[0])      // 1-bit input: Clock select
   );
 
   BUFGMUX i_BUFGMUX1 (
     .O(clk_mux_1_s),  
     .I0(clk_mux_0_s), 
     .I1(count_clk_0_s),         
-    .S(sw_in(1))      
+    .S(sw_in[1])      
   );
 
   counter  #(
@@ -73,6 +73,10 @@ module clocking_network #(
     end else begin
        clk_div_2_r <= ~clk_div_2_r;
     end
+  end
+  
+  always_ff @(posedge clk_div_2_r) begin 
+    led_out_3_r <= clk_mux_1_s;
   end
 
 endmodule : clocking_network

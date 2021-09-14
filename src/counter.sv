@@ -1,7 +1,7 @@
 // configurable counter that inverts output every time timer is reset
 
 module counter #(
-  parameter COUNTER_MAX = 50000000
+  parameter COUNTER_MAX = 50000
 ) 
 (
   input  logic clk,    // Clock
@@ -20,7 +20,7 @@ module counter #(
        counter_r <= '0;
        div_clk_r <= 1'b0;
     end else begin
-      if (counter == COUNTER_MAX) begin
+      if (counter_r == COUNTER_MAX) begin
         counter_r <= '0;
         div_clk_r <= ~div_clk_r;
       end else begin 
